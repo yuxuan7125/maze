@@ -1,9 +1,4 @@
-import copy
-
 import package_fuction
-
-maze=package_fuction.made_randomimport package_fuction
-#from package_fuction.make_random_maze import 
 
 import pygame
 import sys
@@ -49,9 +44,56 @@ def set_R_C():
 
 R,C=set_R_C()
 
-size=min((WIDTH-100)/C,(HEIGHT-100)/R)
+size=int(min((WIDTH-100)/C,(HEIGHT-100)/R))
 maze=package_fuction.made_random_maze(R,C)
+X0=int(WIDTH/2-C*size/2)
+Y0=int(HEIGHT/2-R*size/2)
 
+class player():
+    def __init__(self):
+        self.x=X0
+        self.y=Y0
+        self.r=0
+        self.c=0
+p1=player()
+
+def set_gsme():
+    while True:
+        clock.tick(60)
+        screem.fill((50,50,255))
+        r=c=0
+        for y in range(Y0,Y0+size*(R-1),size):
+            for x in range(X0,X0+size*(C-1),size):
+                if maze[r][c]==1:
+                    pygame.draw.rect(screem,(0,0,0),(x,y,size,size))
+                else:
+                    pygame.draw.rect(screem,(0,255,0),(x,y,size,size))
+                c+=1
+            c=0
+            r+=1
+
+        pygame.draw.rect(screem,(255,255,0),(p1.x,p1.y,size,size))
+
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit(); sys.exit()
+            if event.type==pygame.KEYDOWN:
+                if event.key==pygame.K_UP and p1.r-1>=0 and maze[p1.r-1][p1.c]==0:
+                    p1.r-=1
+                    p1.y-=size
+                if event.key==pygame.K_DOWN and p1.r+1<R and maze[p1.r+1][p1.c]==0:
+                    p1.r+=1
+                    p1.y+=size
+                if event.key==pygame.K_LEFT and p1.c-1>=0 and maze[p1.r][p1.c-1]==0:
+                    p1.c-=1
+                    p1.x-=size
+                if event.key==pygame.K_RIGHT and p1.c+1<C and maze[p1.r][p1.c+1]==0:
+                    p1.c+=1
+                    p1.x+=size
+
+        pygame.display.flip()
+
+set_gsme()
 
 
 pygame.quit(); sys.exit()
@@ -66,14 +108,4 @@ for row in maze:
 print(shortest_len)
 for row in shortest_answer_maze:
     print(*row,sep="")
-'''_maze()
-shortest_answer_maze=copy.deepcopy(maze)
-shortest_answer_maze,shortest_len=package_fuction.find_shortest_answer_maze(shortest_answer_maze)
-maze=package_fuction.make_color_maze(maze)
-shortest_answer_maze=package_fuction.make_color_maze(shortest_answer_maze)
-for row in maze:
-    print(*row,sep="")
-print(shortest_len)
-for row in shortest_answer_maze:
-
-    print(*row,sep="")
+'''
