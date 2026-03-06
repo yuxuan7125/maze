@@ -23,6 +23,14 @@ def set_R_C():
         screem.blit(FONT(40).render(f"C(5~100): {C}",True,(0,0,0)),(WIDTH/8,HEIGHT/8+40))
         screem.blit(FONT(40).render("R: up|down  C: left|right",True,(0,0,0)),(WIDTH/8,HEIGHT/8+80))
 
+        size=int(min(WIDTH/1.5/C,HEIGHT/1.5/R))
+        Xmid,Ymid=WIDTH/2,HEIGHT/1.6
+        x0,y0=int(Xmid-size*C/2),int(Ymid-size*R/2)
+        x1,y1=x0+size*C,y0+size*R
+        for x in range(x0,x1,size):
+            for y in range(y0,y1,size):
+                pygame.draw.rect(screem,(0,0,0),(x,y,size,size),1)
+
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 pygame.quit(); sys.exit()
@@ -60,14 +68,14 @@ p1=player()
 def set_gsme():
     while True:
         clock.tick(60)
-        screem.fill((50,50,255))
+        screem.fill((200,200,255))
         r=c=0
-        for y in range(Y0,Y0+size*(R-1),size):
-            for x in range(X0,X0+size*(C-1),size):
+        for y in range(Y0,Y0+size*R,size):
+            for x in range(X0,X0+size*C,size):
                 if maze[r][c]==1:
                     pygame.draw.rect(screem,(0,0,0),(x,y,size,size))
                 else:
-                    pygame.draw.rect(screem,(0,255,0),(x,y,size,size))
+                    pygame.draw.rect(screem,(100,255,100),(x,y,size,size))
                 c+=1
             c=0
             r+=1
