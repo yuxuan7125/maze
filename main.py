@@ -1,4 +1,5 @@
 import package_fuction
+from package_fuction.make_random_maze import rs,cs,re,ce
 
 import pygame
 import sys
@@ -50,28 +51,39 @@ def set_R_C():
 
         pygame.display.flip()
 
-R,C=set_R_C()
-
-size=int(min((WIDTH-100)/C,(HEIGHT-100)/R))
-maze=package_fuction.made_random_maze(R,C)
-X0=int(WIDTH/2-C*size/2)
-Y0=int(HEIGHT/2-R*size/2)
-
-class player():
-    def __init__(self):
-        self.x=X0
-        self.y=Y0
-        self.r=0
-        self.c=0
-p1=player()
 
 def set_gsme():
+
+    R,C=set_R_C()
+
+    size=int(min((WIDTH-100)/C,(HEIGHT-100)/R))
+    maze=package_fuction.made_random_maze(R,C,0,0,R-1,C-1)
+    X0,Y0=int(WIDTH/2-C*size/2),int(HEIGHT/2-R*size/2)
+    X1,Y1=X0+size*C,Y0+size*R
+    class player():
+        def __init__(self):
+            self.x=X0
+            self.y=Y0
+            self.r=rs
+            self.c=cs
+    p1=player()
+
+    second=times=0
     while True:
-        clock.tick(60)
         screem.fill((200,200,255))
+        
+        # 時間系統
+        screem.blit(FONT(40).render(f"time: {second} s",True,(0,0,0)),(10,10))
+        clock.tick(60)
+        times+=1
+        if times==60:
+            second+=1
+            times=0
+
+        # 繪製迷宮
         r=c=0
-        for y in range(Y0,Y0+size*R,size):
-            for x in range(X0,X0+size*C,size):
+        for y in range(Y0,Y1,size):
+            for x in range(X0,X1,size):
                 if maze[r][c]==1:
                     pygame.draw.rect(screem,(0,0,0),(x,y,size,size))
                 else:
@@ -80,29 +92,41 @@ def set_gsme():
             c=0
             r+=1
 
-        pygame.draw.rect(screem,(255,255,0),(p1.x,p1.y,size,size))
-
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 pygame.quit(); sys.exit()
             if event.type==pygame.KEYDOWN:
+
+                # 方向控制
                 if event.key==pygame.K_UP and p1.r-1>=0 and maze[p1.r-1][p1.c]==0:
-                    p1.r-=1
                     p1.y-=size
+                    p1.r-=1
                 if event.key==pygame.K_DOWN and p1.r+1<R and maze[p1.r+1][p1.c]==0:
-                    p1.r+=1
                     p1.y+=size
+                    p1.r+=1
                 if event.key==pygame.K_LEFT and p1.c-1>=0 and maze[p1.r][p1.c-1]==0:
-                    p1.c-=1
                     p1.x-=size
+                    p1.c-=1
                 if event.key==pygame.K_RIGHT and p1.c+1<C and maze[p1.r][p1.c+1]==0:
-                    p1.c+=1
                     p1.x+=size
+                    p1.c+=1
+
+        pygame.draw.rect(screem,(255,255,0),(p1.x,p1.y,size,size)) # 繪製玩家
+
+        if p1.r==R-1 and p1.c==C-1:
+            while True:
+                for event in pygame.event.get():
+                    if event.type==pygame.QUIT:
+                        pygame.quit(); sys.exit()
+                    if event.type==pygame.KEYDOWN:
+                        if event.key==pygame.K_RETURN:
+                            return
 
         pygame.display.flip()
 
-set_gsme()
-
+# ---main---
+while True:
+    set_gsme()
 
 pygame.quit(); sys.exit()
 
