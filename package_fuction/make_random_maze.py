@@ -1,23 +1,8 @@
 import random
-import copy
 
-R=int(input())      #迷宮大小
-C=int(input())
-
-
-'''rs=random.randrange(0,R)        #生成隨機開始點s及結束點e
-cs=random.randrange(0,C)
-re=random.randrange(0,R)
-ce=random.randrange(0,C)
-k=0
-while abs(rs-re)+abs(cs-ce)<(R+C)/2 :
-    re=random.randrange(0,R)
-    ce=random.randrange(0,C)
-    k+=1
-    if k>100:
-        break'''
-rs=cs=0
-re,ce=R-1,C-1
+#R=int(input())      #迷宮大小
+#C=int(input())
+R=C=rs=cs=re=ce=0
 
 def make_1_0_maze():      #生成隨機1,0迷宮
     maze=list()
@@ -35,7 +20,6 @@ def make_1_0_maze():      #生成隨機1,0迷宮
                         maze[i][j-1]=1
                     case 4 :
                         maze[i-1][j-1]=1
-    maze[rs][cs]=maze[re][ce]=0
     return maze
 
 
@@ -213,12 +197,14 @@ def make_less_blank_maze(maze):        #將多餘的路變成牆
                 if len(turn1)>=1:
                     x=random.randrange(0,len(turn1))
                     maze[turn1[x][0]][turn1[x][1]]=1
-    maze[rs][cs],maze[re][ce]="s","e"
     return maze
 
 
-def made_random_maze():
+def made_random_maze(a,b,c,d,e,f):
+    global R,C,rs,cs,re,ce
+    R,C,rs,cs,re,ce=a,b,c,d,e,f
     maze=make_1_0_maze()
+    maze[rs][cs]=maze[re][ce]=0
     have_road_maze=make_have_road_maze_dfs(maze)
     #have_road_maze=make_have_road_maze_bfs(maze)
     final_maze=make_less_blank_maze(have_road_maze)
