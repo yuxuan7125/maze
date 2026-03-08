@@ -1,7 +1,5 @@
 import random
 
-#R=int(input())      #迷宮大小
-#C=int(input())
 R=C=rs=cs=re=ce=0
 
 def make_1_0_maze():      #生成隨機1,0迷宮
