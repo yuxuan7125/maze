@@ -19,8 +19,9 @@ class Player:
         self.c=c
 
 #   讓使用者設定迷宮大小
+R,C=20,20
 def set_R_C():
-    R,C=20,20
+    global R,C
     while True:
         clock.tick(20)
         screen.fill((200,200,200))
@@ -58,6 +59,7 @@ def set_R_C():
 
 def set_game():
 
+    # 設定基本資料
     R,C=set_R_C()
     rs,cs,re,ce=0,0,R-1,C-1
 
@@ -67,9 +69,20 @@ def set_game():
     p1=Player(rs,cs)
     start_time=pygame.time.get_ticks()
 
+    # 制作迷宮畫布
+    maze_surface=pygame.Surface((C*size,R*size))
+    maze_surface.fill((100,255,100))
+    for r in range(R):
+        for c in range(C):
+            if maze[r][c]==1:
+                pygame.draw.rect(maze_surface,(0,0,0),(c*size,r*size,size,size))
+    pygame.draw.rect(maze_surface,(50,50,255),(cs*size,rs*size,size,size))
+    pygame.draw.rect(maze_surface,(255,50,50),(ce*size,re*size,size,size))
+
     while True:
         clock.tick(60)
         screen.fill((200,200,255))
+        screen.blit(maze_surface,(X0,Y0))
         
         # 時間系統
         second=(pygame.time.get_ticks()-start_time)//1000
@@ -91,28 +104,29 @@ def set_game():
                 if event.key==pygame.K_RIGHT and p1.c+1<C and maze[p1.r][p1.c+1]==0:
                     p1.c+=1
 
-        # 繪製迷宮
-        for r in range(R):
-            for c in range(C):
-                x=X0+c*size
-                y=Y0+r*size
-                if (r,c)==(p1.r,p1.c):
-                    color=(255,255,0)
-                elif (r,c)==(rs,cs):
-                    color=(0,0,255)
-                elif (r,c)==(re,ce):
-                    color=(255,0,0)
-                elif maze[r][c]==1:
-                    color=(0,0,0)
-                else:
-                    color=(100,255,100)
-                pygame.draw.rect(screen,color,(x,y,size,size))
+        # 繪製玩家
+        x=X0+p1.c*size
+        y=Y0+p1.r*size
+        pygame.draw.rect(screen,(255,255,0),(x,y,size,size))
 
         # 終點抵達
         if (p1.r,p1.c)==(re,ce):
+            translucent_surface=pygame.Surface((WIDTH,HEIGHT),pygame.SRCALPHA)
+            translucent_surface.fill((255,255,255,180))
+            screen.blit(translucent_surface,(0,0))
+            #pygame.draw.rect(screen,(255,255,255),(WIDTH/2-200,HEIGHT/2-20,400,40))
+            screen.blit(FONT40.render(f"you completed the maze in {second} seconds",True,(0,0,0)),(WIDTH/2-230,HEIGHT/2-40))
+            screen.blit(FONT40.render("press enter for next round",True,(0,0,0)),(WIDTH/2-180,HEIGHT/2))
             pygame.display.flip()
-            return
-
+            while True:
+                clock.tick(10)
+                for event in pygame.event.get():
+                    if event.type==pygame.QUIT:
+                        pygame.quit(); sys.exit()
+                    if event.type==pygame.KEYDOWN:
+                        if event.key==pygame.K_RETURN:
+                            return
+                        
         pygame.display.flip()
 
 # ---main---
@@ -120,15 +134,3 @@ while True:
     set_game()
 
 pygame.quit(); sys.exit()
-
-'''
-shortest_answer_maze=copy.deepcopy(maze)
-shortest_answer_maze,shortest_len=package_fuction.find_shortest_answer_maze(shortest_answer_maze)
-maze=package_fuction.make_color_maze(maze)
-shortest_answer_maze=package_fuction.make_color_maze(shortest_answer_maze)
-for row in maze:
-    print(*row,sep="")
-print(shortest_len)
-for row in shortest_answer_maze:
-    print(*row,sep="")
-'''
