@@ -17,6 +17,9 @@ class Player:
     def __init__(self,r,c):
         self.r=r
         self.c=c
+        self.path=[]
+translucent_surface=pygame.Surface((WIDTH,HEIGHT),pygame.SRCALPHA)
+translucent_surface.fill((255,255,255,180))
 
 #   讓使用者設定迷宮大小
 R,C=20,20
@@ -56,17 +59,37 @@ def set_R_C():
 
         pygame.display.flip()
 
+def display_flash_block(surface,size,speed,x,y):
+    backgroung=surface.copy()
+    flash_surface=pygame.Surface((size,size),pygame.SRCALPHA)
+    for alpha in range(0,256,10):
+        pygame.time.delay(speed)
+        surface.blit(backgroung,(0,0))
+        flash_surface.fill((255,255,255,alpha))
+        surface.blit(flash_surface,(x,y))
+        pygame.display.flip()
+    surface.blit(backgroung,(0,0))
+    flash_surface.fill((255,255,255,50))
+    surface.blit(flash_surface,(x,y))
+    pygame.display.flip()
+
+
+
 
 def set_game():
 
-    # 設定基本資料
     R,C=set_R_C()
-    rs,cs,re,ce=0,0,R-1,C-1
+    screen.blit(translucent_surface,(0,0))
+    screen.blit(FONT40.render(f"making maze...",True,(0,0,0)),(WIDTH/2-100,HEIGHT/2))
+    pygame.display.flip()
 
+    # 設定基本資料
+    rs,cs,re,ce=0,0,R-1,C-1
     size=int(min((WIDTH-100)/C,(HEIGHT-100)/R))
     maze=package_fuction.made_random_maze(R,C,rs,cs,re,ce)
     X0,Y0=int(WIDTH/2-C*size/2),int(HEIGHT/2-R*size/2)
     p1=Player(rs,cs)
+    p1.path.append((X0,Y0))
     start_time=pygame.time.get_ticks()
 
     # 制作迷宮畫布
@@ -108,18 +131,20 @@ def set_game():
         x=X0+p1.c*size
         y=Y0+p1.r*size
         pygame.draw.rect(screen,(255,255,0),(x,y,size,size))
+        if p1.path[-1]!=(x,y):
+            p1.path.append((x,y))
 
         # 終點抵達
         if (p1.r,p1.c)==(re,ce):
-            translucent_surface=pygame.Surface((WIDTH,HEIGHT),pygame.SRCALPHA)
-            translucent_surface.fill((255,255,255,180))
+            for i in p1.path:
+                display_flash_block(screen,size,0,i[0],i[1])
+            pygame.time.delay(1000)
             screen.blit(translucent_surface,(0,0))
-            #pygame.draw.rect(screen,(255,255,255),(WIDTH/2-200,HEIGHT/2-20,400,40))
             screen.blit(FONT40.render(f"you completed the maze in {second} seconds",True,(0,0,0)),(WIDTH/2-230,HEIGHT/2-40))
             screen.blit(FONT40.render("press enter for next round",True,(0,0,0)),(WIDTH/2-180,HEIGHT/2))
             pygame.display.flip()
             while True:
-                clock.tick(10)
+                clock.tick(1)
                 for event in pygame.event.get():
                     if event.type==pygame.QUIT:
                         pygame.quit(); sys.exit()
