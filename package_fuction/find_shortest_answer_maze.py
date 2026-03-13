@@ -1,7 +1,7 @@
-from package_fuction.make_random_maze import add_d,R,C,rs,re,cs,ce
+from package_fuction.make_random_maze import add_d
 
 
-def find_shortest_answer_maze(maze):          #找出迷宮最短的解答
+def find_shortest_answer_maze(maze,R,C,rs,re,cs,ce):          #找出迷宮最短的解答
     maze[rs][cs],maze[re][ce]=0,0
     r,c=rs,cs
     path=[{"r":r, "c":c, "dist":0}]
@@ -27,15 +27,12 @@ def find_shortest_answer_maze(maze):          #找出迷宮最短的解答
             shortest_len=path[k]["dist"]
             dist-=2
         if path[k]["dist"]==dist and abs(r-path[k]["r"])+abs(c-path[k]["c"])==1:
-            shortest_path.append([path[k]["r"],path[k]["c"]])
+            shortest_path.append(([path[k]["r"],path[k]["c"]]))
             dist-=1
             r,c=path[k]["r"],path[k]["c"]
     for a in range(R):
         for b in range(C):
             if maze[a][b]==2:
                 maze[a][b]=0
-    maze[rs][cs]='s'
-    maze[re][ce]='e'
-    for a,b in shortest_path[:len(shortest_path)-1]:
-        maze[a][b]='v'
-    return maze,shortest_len
+
+    return maze,shortest_path
