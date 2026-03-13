@@ -59,20 +59,28 @@ def set_R_C():
 
         pygame.display.flip()
 
-def display_flash_block(surface,size,speed,x,y):
-    backgroung=surface.copy()
-    flash_surface=pygame.Surface((size,size),pygame.SRCALPHA)
-    for alpha in range(0,256,10):
-        pygame.time.delay(speed)
-        surface.blit(backgroung,(0,0))
-        flash_surface.fill((255,255,255,alpha))
+def display_flash_path(surface,size,speed,path):
+    for x,y in path:
+        backgroung=surface.copy()
+        flash_surface=pygame.Surface((size,size),pygame.SRCALPHA)
+        flash_surface.fill((255,255,255))
         surface.blit(flash_surface,(x,y))
         pygame.display.flip()
-    surface.blit(backgroung,(0,0))
-    flash_surface.fill((255,255,255,50))
-    surface.blit(flash_surface,(x,y))
-    pygame.display.flip()
+        pygame.time.delay(speed)
+        surface.blit(backgroung,(0,0))
+        flash_surface.fill((255,255,255,50))
+        surface.blit(flash_surface,(x,y))
+        pygame.display.flip()
+    return
 
+def display_shortest_answer(maze,R,C,rs,re,cs,ce,size,X0,Y0):
+    maze,shortest_path=package_fuction.find_shortest_answer_maze(maze,R,C,rs,re,cs,ce)
+    for i,rc in enumerate(shortest_path):
+        x=X0+rc[1]*size
+        y=Y0+rc[0]*size
+        shortest_path[i]=(x,y)
+    display_flash_path(screen,size,50,shortest_path)
+    return
 
 
 
@@ -116,6 +124,8 @@ def set_game():
             if event.type==pygame.QUIT:
                 pygame.quit(); sys.exit()
             if event.type==pygame.KEYDOWN:
+                if event.key==pygame.K_a:
+                    display_shortest_answer(maze,R,C,rs,re,cs,ce,size,X0,Y0)
 
                 # 方向控制
                 if event.key==pygame.K_UP and p1.r-1>=0 and maze[p1.r-1][p1.c]==0:
@@ -136,15 +146,14 @@ def set_game():
 
         # 終點抵達
         if (p1.r,p1.c)==(re,ce):
-            for i in p1.path:
-                display_flash_block(screen,size,0,i[0],i[1])
+            display_flash_path(screen,size,50,p1.path)
             pygame.time.delay(1000)
             screen.blit(translucent_surface,(0,0))
             screen.blit(FONT40.render(f"you completed the maze in {second} seconds",True,(0,0,0)),(WIDTH/2-230,HEIGHT/2-40))
             screen.blit(FONT40.render("press enter for next round",True,(0,0,0)),(WIDTH/2-180,HEIGHT/2))
             pygame.display.flip()
             while True:
-                clock.tick(1)
+                clock.tick(60)
                 for event in pygame.event.get():
                     if event.type==pygame.QUIT:
                         pygame.quit(); sys.exit()
