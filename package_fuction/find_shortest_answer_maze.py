@@ -2,37 +2,41 @@ from package_fuction.make_random_maze import add_d
 
 
 def find_shortest_answer_maze(maze,R,C,rs,re,cs,ce):          #找出迷宮最短的解答
-    maze[rs][cs],maze[re][ce]=0,0
-    r,c=rs,cs
-    path=[{"r":r, "c":c, "dist":0}]
-    i=0
-    dist=1
-    while r!=re or c!=ce :
-        maze[r][c]=2
-        add_d(r,c,maze,path,0,i)
-        if 1 in path[i]["dirs"]:
-            path.append({"r":r-1, "c":c, "dist":dist})
-        if 2 in path[i]["dirs"]:
-            path.append({"r":r, "c":c-1, "dist":dist})
-        if 3 in path[i]["dirs"]:
-            path.append({"r":r+1, "c":c, "dist":dist})
-        if 4 in path[i]["dirs"]:
-            path.append({"r":r, "c":c+1, "dist":dist})
-        i+=1
-        r,c,dist=path[i]["r"],path[i]["c"],path[i]["dist"]+1
-    shortest_path=list()
+
+    # BFS主體
     r,c=re,ce
-    for k in range(len(path)-1,-1,-1):
-        if path[k]["r"]==re and path[k]["c"]==ce:
-            shortest_len=path[k]["dist"]
-            dist-=2
-        if path[k]["dist"]==dist and abs(r-path[k]["r"])+abs(c-path[k]["c"])==1:
-            shortest_path.append(([path[k]["r"],path[k]["c"]]))
-            dist-=1
-            r,c=path[k]["r"],path[k]["c"]
+    visit=[{"r":r, "c":c}]
+    i=0
+    while i<len(visit) :
+        maze[r][c]=2                # 2表示已走訪過
+        add_d(r,c,maze,visit,0,i)
+        if "up" in visit[i]["dirs"]:
+            visit.append({"r":r-1, "c":c, "son":(r,c)})
+        if "left" in visit[i]["dirs"]:
+            visit.append({"r":r, "c":c-1, "son":(r,c)})
+        if "down" in visit[i]["dirs"]:
+            visit.append({"r":r+1, "c":c, "son":(r,c)})
+        if "right" in visit[i]["dirs"]:
+            visit.append({"r":r, "c":c+1, "son":(r,c)})
+        i+=1
+        if i==len(visit):
+            break
+        r,c=visit[i]["r"],visit[i]["c"]
+        
+    # 回推最短路
+    shortest_path=list()
+    r,c=rs,cs
+    for k in range(len(visit)-1,-1,-1):
+        if (r,c)==(re,ce):
+            break
+        if (visit[k]["r"],visit[k]["c"])==(r,c):
+            shortest_path.append((r,c))
+            r,c=visit[k]["son"]
+    
+    # 將maze還原
     for a in range(R):
         for b in range(C):
             if maze[a][b]==2:
                 maze[a][b]=0
 
-    return maze,shortest_path
+    return visit,shortest_path
