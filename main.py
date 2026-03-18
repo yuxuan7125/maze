@@ -73,8 +73,7 @@ def display_flash_path(surface,size,speed,path):
         pygame.display.flip()
     return
 
-def display_shortest_answer(maze,R,C,rs,re,cs,ce,size,X0,Y0):
-    maze,shortest_path=package_fuction.find_shortest_answer_maze(maze,R,C,rs,re,cs,ce)
+def display_shortest_answer(shortest_path,size,X0,Y0):
     for i,rc in enumerate(shortest_path):
         x=X0+rc[1]*size
         y=Y0+rc[0]*size
@@ -95,6 +94,7 @@ def set_game():
     rs,cs,re,ce=0,0,R-1,C-1
     size=int(min((WIDTH-100)/C,(HEIGHT-100)/R))
     maze=package_fuction.made_random_maze(R,C,rs,cs,re,ce)
+    visit=package_fuction.visit_maze(maze,R,C,re,ce)
     X0,Y0=int(WIDTH/2-C*size/2),int(HEIGHT/2-R*size/2)
     p1=Player(rs,cs)
     p1.path.append((X0,Y0))
@@ -124,8 +124,14 @@ def set_game():
             if event.type==pygame.QUIT:
                 pygame.quit(); sys.exit()
             if event.type==pygame.KEYDOWN:
+
+                # 提示,解答
+                if event.key==pygame.K_SPACE:
+                    shortest_path=package_fuction.find_road(visit,p1.r,p1.c,re,ce)
+                    display_shortest_answer(shortest_path[:5],size,X0,Y0)
                 if event.key==pygame.K_a:
-                    display_shortest_answer(maze,R,C,rs,re,cs,ce,size,X0,Y0)
+                    shortest_path=package_fuction.find_road(visit,p1.r,p1.c,re,ce)
+                    display_shortest_answer(shortest_path,size,X0,Y0)
 
                 # 方向控制
                 if event.key==pygame.K_UP and p1.r-1>=0 and maze[p1.r-1][p1.c]==0:
@@ -146,7 +152,7 @@ def set_game():
 
         # 終點抵達
         if (p1.r,p1.c)==(re,ce):
-            display_flash_path(screen,size,50,p1.path)
+            display_flash_path(screen,size,25,p1.path)
             pygame.time.delay(1000)
             screen.blit(translucent_surface,(0,0))
             screen.blit(FONT40.render(f"you completed the maze in {second} seconds",True,(0,0,0)),(WIDTH/2-230,HEIGHT/2-40))
